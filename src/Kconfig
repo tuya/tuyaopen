@@ -1,5 +1,5 @@
 # Ktuyaconf
-menu "configure tuyaos"
+menu "configure tuyaopen"
     rsource "tuya_cloud_service/Kconfig"
     rsource "liblwip/Kconfig"
     rsource "libtls/Kconfig"

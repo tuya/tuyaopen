@@ -1,20 +1,20 @@
 /**
- * @file example_http.c
- * @brief Demonstrates HTTP client usage in Tuya SDK applications.
+ * @file example_mqtt_client.c
+ * @brief Demonstrates mqtt client usage in Tuya SDK applications.
  *
- * This file provides an example of how to use the HTTP client interface provided by the Tuya SDK to send HTTP requests
- * and handle responses. It includes initializing the SDK, setting up network connections (both WiFi and wired,
- * depending on the configuration), sending a GET request to a specified URL, and handling the response. The example
- * also demonstrates how to handle network link status changes and perform cleanups.
+ * This file provides an example of how to use the mqtt client interface provided by the Tuya SDK to connect to mqtt broker.
+ * It includes initializing the SDK, setting up network connections (both WiFi and wired,
+ * depending on the configuration), initializing the mqtt client and connect to the mqtt broker, and subscribe/unsubscribe topics, publish/receive
+ * message. The example also demonstrates how to publ network link status changes and perform cleanups.
  *
  * Key operations demonstrated in this file:
  * - Initialization of the Tuya SDK and network manager.
- * - Sending an HTTP GET request and receiving a response.
- * - Handling network link status changes.
+ * - initializing mqtt client and connect to mqtt broker.
+ * - Handling connect ack and subscribe topics
+ * - handling subscribe ack and publish messages
+ * - handling publish ack and disconnect the mqtt broker
  * - Cleanup and resource management.
  *
- * This example is intended for developers looking to integrate HTTP communication into their Tuya SDK-based IoT
- * applications, providing a foundation for building applications that interact with web services.
  *
  * @copyright Copyright (c) 2021-2024 Tuya Inc. All Rights Reserved.
  *
@@ -63,7 +63,7 @@ typedef struct {
 ***********************************************************/
 static void mqtt_client_connected_cb(void *client, void *userdata)
 {
-    PR_INFO("mqtt client connected!");
+    PR_INFO("mqtt client connected! try to subscribe tuya/tos-test");
     uint16_t msgid = mqtt_client_subscribe(client, "tuya/tos-test", MQTT_QOS_0);
     if (msgid <= 0) {
         PR_ERR("Subscribe failed!");
@@ -101,8 +101,8 @@ static void mqtt_client_puback_cb(void *client, uint16_t msgid, void *userdata)
     PR_DEBUG("UnSubscribe topic tuya/tos-test");
     mqtt_client_unsubscribe(client, "tuya/tos-test", MQTT_QOS_0);
 
-    PR_DEBUG("MQTT Client Disconnect");
-    mqtt_client_disconnect(client);
+    // PR_DEBUG("MQTT Client Disconnect");
+    // mqtt_client_disconnect(client);
 }
 
 /**
@@ -119,7 +119,7 @@ OPERATE_RET __link_status_cb(void *data)
         return OPRT_OK;
 
     status = (netmgr_status_e)data;
-    PR_DEBUG("start mqtt client");
+    PR_DEBUG("start mqtt client to broker.emqx.io");
     /* MQTT Client init */
     mqtt_client_context_t mqtt_client = {0};
     mqtt_client_status_t mqtt_status;
@@ -143,10 +143,6 @@ OPERATE_RET __link_status_cb(void *data)
         PR_ERR("MQTT init failed: Status = %d.", mqtt_status);
         return OPRT_COM_ERROR;
     }
-
-    BackoffAlgorithmContext_t backoff_algorithm;
-    BackoffAlgorithm_InitializeParams(&backoff_algorithm, MQTT_CONNECT_RETRY_MIN_DELAY_MS,
-                                      MQTT_CONNECT_RETRY_MAX_DELAY_MS, MQTT_CONNECT_RETRY_MAX_ATTEMPTS);
 
     mqtt_status = mqtt_client_connect(&mqtt_client);
     if (MQTT_STATUS_NOT_AUTHORIZED == mqtt_status) {
@@ -177,7 +173,7 @@ void user_main()
     });
     tal_sw_timer_init();
     tal_workq_init();
-    tal_event_subscribe(EVENT_LINK_STATUS_CHG, "tcp_client", __link_status_cb, SUBSCRIBE_TYPE_NORMAL);
+    tal_event_subscribe(EVENT_LINK_STATUS_CHG, "mqtt_client", __link_status_cb, SUBSCRIBE_TYPE_NORMAL);
 
     // 初始化LWIP
 #if defined(ENABLE_LIBLWIP) && (ENABLE_LIBLWIP == 1)

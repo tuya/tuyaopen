@@ -15,3 +15,5 @@ __pycache__
 .build
 
 /arduino-tuyaopen
+
+/tools/tyutool/tyutool_*

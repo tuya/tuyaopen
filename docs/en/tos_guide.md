@@ -100,20 +100,6 @@ $ cd hello_world
 $ tos clean
 ```
 
-## Multi-platform Configuration
-The tos tool configures multi-platform compilation through the project_build.ini file in the project engineering directory. The configuration file format is as follows:
-```ini
-[project:switch_demo_t2]
-platform = t2
-
-[project:switch_demo_t3]
-platform = t3
-```
-
-By default, there is only 1 project in project. If you need to compile multiple projects, you need to add multiple project configurations in the project_build.ini file.
-
-When there are multiple projects in the configuration file, the `tos build` command will compile multiple projects in sequence.
-
 ## Compile All Projects in the Specified Directory
 ```shell
 $ tos build_all .

@@ -99,23 +99,6 @@ $ cd hello_world
 $ tos clean
 ```
 
-## 多平台配置
-tos 工具通过项目工程目录下的 project_build.ini 文件配置多平台编译，配置文件格式如下：
-```ini
-[project:switch_demo_t2]
-platform = t2
-
-[project:switch_demo_t3]
-platform = t3
-```
-
-默认 project 只有 1 个，如需编译多个 project，需在 project_build.ini 文件中添加多个 project 配置.
-- 推荐 project 名为 `当前项目名_platform名` 或 `当前项目名_chip名`。
-- platform 为项目对应的平台。
-- chip 为项目对应的芯片型号。
-
-当配置文件中存在多个 project 时，`tos build` 命令会依次编译多个 project。
-
 ## 编译指定目录下所有项目
 ```shell
 $ tos build_all .

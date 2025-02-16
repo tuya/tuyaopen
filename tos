@@ -35,6 +35,7 @@ function check_submodules()
 {
     check_hooks
 
+    show "${fore[green]}" "Check submodules."
     cd $OPEN_SDK_ROOT
     submodules=($(grep "path" .gitmodules | sed 's/^[ \t]*path = //'))
     for submodule in "${submodules[@]}"
@@ -73,17 +74,21 @@ function check_arduino()
 
 function version_exec()
 {
-    show "" "1.0.0"
+    show "" "1.1.0"
 }
 
 function check_exec()
 {
     show "" "Check command and version ..."
+    check_command_version "bash" "4.0.0" "bash --version"
+    check_command_version "grep" "3.0.0" "grep --version"
+    check_command_version "sed" "4.0.0" "sed --version"
     check_command_version "python3" "3.6.0" "python3 --version"
     check_command_version "git" "2.0.0" "git --version"
     check_command_version "cmake" "3.16.0" "cmake --version"
-    check_command_version "ccmake" "3.16.0" "ccmake --version"  # sudo apt-get install cmake-curses-gui
-    check_command_version "lcov" "1.14" "lcov --version"
+    # check_command_version "ccmake" "3.16.0" "ccmake --version"  # sudo apt-get install cmake-curses-gui
+    # check_command_version "lcov" "1.14" "lcov --version"
+    # check_command_version "ninja" "1.6.0" "ninja --version"
 
     check_submodules
 
@@ -262,7 +267,7 @@ function build_exec()
         fi
         cd - > /dev/null
     done
-        return "$RET"
+    return "$RET"
 }
 
 function clean_exec()
@@ -395,6 +400,51 @@ function new_platform_exec()
     ${OPEN_SDK_ROOT}/tools/kernel_porting.sh ${PLATFORM_NAME}
 }
 
+function flash_exec()
+{
+    DOWNLOAD_SCRIPT=${OPEN_SDK_ROOT}/tools/tyutool/download_tyutool.sh
+    TYUTOOL_DIR="${OPEN_SDK_ROOT}/tools/tyutool"
+    TYUTOOL="${TYUTOOL_DIR}/tyutool_cli"
+    ${DOWNLOAD_SCRIPT} ${TYUTOOL_DIR}
+    if [ "$?" != "0" ]; then
+        echo "Error: Download tyutool failed."
+        exit 1
+    fi
+    shift
+    echo "tyutool params: $*"
+    if [ -n "$*" ]; then
+        ${TYUTOOL} $@
+        exit 0
+    fi
+
+    check_ini
+    PROJECT_NAMES=$(cat $PROJECT_INI | grep -oP '(?<=^\[project\:).*(?=\])')
+    for PROJ in $PROJECT_NAMES; do
+        PROJECT_INFO=$(cat $PROJECT_INI | awk "/^\[project:$PROJ]$/{flag=1; next} /^\[project:.*$/{flag=0} flag")
+        if [ -z "$PROJECT_INFO" ]; then
+            NOTE="Can't found project [$PROJ]."
+            show "${fore[red]}" "$NOTE"
+            continue
+        fi
+        PROJECT_PLATFORM=$(echo "$PROJECT_INFO" | grep -oP '(?<=platform = ).*(?=$)')
+        if [ -z "$PROJECT_PLATFORM" ]; then
+            NOTE="Can't found project [$PROJ] platform."
+            show "${fore[red]}" "$NOTE"
+            continue
+        fi
+
+        . $PROJECT_ROOT/.build/$PROJ/cache/using.config
+        BIN_FILE=$PROJECT_ROOT/.build/$PROJ/bin/${PROJ}_QIO_${CONFIG_PROJECT_VERSION}.bin
+        if [ ! -f ${BIN_FILE} ]; then
+            NOTE="Can't found bin file [$BIN_FILE]."
+            show "${fore[red]}" "$NOTE"
+            continue
+        fi
+
+        ${TYUTOOL} write -d ${PROJECT_PLATFORM} -f ${BIN_FILE}
+    done
+}
+
 function help_exec()
 {
     NOTE="
@@ -444,6 +494,9 @@ case $1 in
         ;;
     new_platform)
         new_platform_exec $2
+        ;;
+    flash)
+        flash_exec $@
         ;;
     help)
         help_exec

@@ -72,30 +72,6 @@ $ tos menuconfig
 ```
 Configure the current project, save and exit after configuration, and then compile the project.
 
-## Multi-platform Configuration
-The tos tool configures multi-platform compilation through the `project_build.ini` file in the project engineering directory. The [multi-platform configuration file](examples/get-started/sample_project/project_build.ini) format is as follows:
-```ini
-[project:sample_project_t2]
-platform = t2
-
-[project:sample_project_t3]
-platform = t3
-
-[project:sample_project_ubuntu]
-platform = ubuntu
-
-[project:sample_project_t5]
-platform = t5
-
-[project:sample_project_esp32]
-platform = esp32
-chip = esp32c3      # esp32/esp32c3 Optional
-```
-
-By default, there is only 1 project in project. If you need to compile multiple projects, you need to add multiple project configurations in the `project_build.ini` file.
-
-When there are multiple projects in the configuration file, the tos build command will compile multiple projects in sequence.
-
 ### Supported platform list
 | Name  | Support Status | Introduction | Debug log serial port |
 | ---- | ---- | ---- | ---- |
@@ -107,6 +83,82 @@ When there are multiple projects in the configuration file, the tos build comman
 | LN882H | Supported |  | Uart1/921600 |
 | BK7231N | Supported | Supported Module List:  [CBU](https://developer.tuya.com/en/docs/iot/cbu-module-datasheet?id=Ka07pykl5dk4u)  [CB3S](https://developer.tuya.com/en/docs/iot/cb3s?id=Kai94mec0s076) [CB3L](https://developer.tuya.com/en/docs/iot/cb3l-module-datasheet?id=Kai51ngmrh3qm) [CB3SE](https://developer.tuya.com/en/docs/iot/CB3SE-Module-Datasheet?id=Kanoiluul7nl2) [CB2S](https://developer.tuya.com/en/docs/iot/cb2s-module-datasheet?id=Kafgfsa2aaypq) [CB2L](https://developer.tuya.com/en/docs/iot/cb2l-module-datasheet?id=Kai2eku1m3pyl) [CB1S](https://developer.tuya.com/en/docs/iot/cb1s-module-datasheet?id=Kaij1abmwyjq2) [CBLC5](https://developer.tuya.com/en/docs/iot/cblc5-module-datasheet?id=Ka07iqyusq1wm) [CBLC9](https://developer.tuya.com/en/docs/iot/cblc9-module-datasheet?id=Ka42cqnj9r0i5) [CB8P](https://developer.tuya.com/en/docs/iot/cb8p-module-datasheet?id=Kahvig14r1yk9) etc. | Uart2/115200 |
 | raspberry pico-w | In Development, to be released in Nov 2024 | | |
+
+## Flashing
+
+### GUI Tool Flashing
+The `tyutool gui` flashing tool supports serial port flashing for multiple chips such as T2/T3/T5/BK7231N/LN882H, and is compatible with Windows/Linux/macOS operating systems. Please choose the corresponding GUI flashing tool based on your operating system.
+- Windows: [tyutool_win](https://images.tuyacn.com/smart/embed/package/vscode/data/ide_serial/win_tyutool_gui.tar.gz)
+- Linux: [tyutool_linux.tar](https://images.tuyacn.com/smart/embed/package/vscode/data/ide_serial/tyutool_gui.tar.gz)
+- macOS x86: [tyutool_mac_x86](https://images.tuyacn.com/smart/embed/package/vscode/data/ide_serial/darwin_x86_tyutool_gui.tar.gz)
+- macOS arm64: [tyutool_mac_arm64.zip](https://images.tuyacn.com/smart/embed/package/vscode/data/ide_serial/darwin_arm64_tyutool_gui.tar.gz)
+
+### Command Line Flashing
+You can flash the device with a single command using `tos flash`.
+
+1. In environments like Linux, you need to set the serial port permissions first using the following command; otherwise, an error will occur during execution.
+```shell
+$ sudo usermod -aG dialout $USER
+```
+
+2. Run the `tos flash` command in the directory of the compiled project for one-click flashing. The `tos flash` command will automatically download the corresponding `tyutool` tool based on the current running environment and proceed with the flashing process.
+```shell
+$ cd examples/get-started/sample_project
+$ tos flash
+tyutool params:
+[INFO]: tyut_logger init done.
+[INFO]: Run Tuya Uart Tool.
+[INFO]: Use default baudrate: [921600]
+[INFO]: Use default start address: [0x00]
+--------------------
+1. /dev/ttyS0
+2. /dev/ttyS1
+3. /dev/ttyS2
+4. /dev/ttyS3
+5. /dev/ttyS4
+6. /dev/ttyS5
+7. /dev/ttyS6
+8. /dev/ttyS7
+9. /dev/ttyS8
+10. /dev/ttyS9
+11. /dev/ttyS10
+12. /dev/ttyS11
+13. /dev/ttyS12
+14. /dev/ttyS13
+15. /dev/ttyS14
+16. /dev/ttyS15
+17. /dev/ttyS16
+18. /dev/ttyS17
+19. /dev/ttyS18
+20. /dev/ttyS19
+21. /dev/ttyS20
+22. /dev/ttyS21
+23. /dev/ttyS22
+24. /dev/ttyS23
+25. /dev/ttyS24
+26. /dev/ttyS25
+27. /dev/ttyS26
+28. /dev/ttyS27
+29. /dev/ttyS28
+30. /dev/ttyS29
+31. /dev/ttyS30
+32. /dev/ttyS31
+33. /dev/ttyUSB0
+^^^^^^^^^^^^^^^^^^^^
+Select serial port: 33                              ## Select the correct serial port
+[INFO]: Waiting Reset ...
+[INFO]: unprotect flash OK.
+[INFO]: sync baudrate 921600 success
+Erasing: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 4 bytes/s   0:00:04 / 0:00:00
+[INFO]: Erase flash success
+Writing: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 16 bytes/s   0:00:18 / 0:00:00
+[INFO]: Write flash success
+[INFO]: CRC check success
+[INFO]: Reboot done
+[INFO]: Flash write success.
+```
+
+> Note: During the flashing process, you need to enter the boot mode according to the actual situation of the chip before performing serial port flashing.
 
 ## Sample Projects
 The tuyaopen provides a variety of sample projects to facilitate developers in quickly getting started and understanding the usage of the tuyaopen.
@@ -150,6 +202,11 @@ $ tuyaopen
 
 Each sample project includes a README.md file that provides detailed instructions on configuring, compiling, and running the project.
 
+## Cloud Connectivity Applications
+
+tuyaopen provides a wealth of cloud connectivity application examples, which can be found in the apps directory. You can click [Cloud Connectivity Applications](apps/tuya_cloud/README.md) for more information.
+
+
 ## Adding and Adapting New Platforms
 
 tuyaopen supports adding and adapting new platforms. For specific operations, please refer to [Adding and Adapting New Platforms](./docs/en/new_platform.md).
@@ -157,6 +214,8 @@ tuyaopen supports adding and adapting new platforms. For specific operations, pl
 ## FAQ
 1. The supported platform for tuyaopen are dynamically downloaded through subrepositories. Updating the tuyaopen repository itself will not automatically update the subrepositories. If you encounter any issues with compilation, please navigate to the corresponding directory in the "platform" folder and use the `git pull` command to update, or delete the corresponding directory in the "platform" folder and download it again.
 
+
+2. tuyaopen provides a wealth of cloud connectivity application examples. If you encounter issues such as being unable to connect or activate devices properly, please refer to [Cloud Connectivity Applications](apps/tuya_cloud/README.md).
 
 ## License
 Distributed under the Apache License Version 2.0. For more information, see `LICENSE`.

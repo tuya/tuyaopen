@@ -7,6 +7,9 @@ choice
 
     config ENABLE_ARDUINO_T3
         bool "ENABLE_ARDUINO_T3"
+
+    config ENABLE_ARDUINO_T5
+        bool "ENABLE_ARDUINO_T5"
 endchoice
 
 if (ENABLE_ARDUINO_T2)
@@ -19,4 +22,10 @@ if (ENABLE_ARDUINO_T3)
     config ARDUINO_BOARD
     string
     default "ARDUINO_T3"
+endif
+
+if (ENABLE_ARDUINO_T5)
+    config ARDUINO_BOARD
+    string
+    default "ARDUINO_T5"
 endif

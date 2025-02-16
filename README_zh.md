@@ -17,6 +17,7 @@ Ubuntu and Debian
 $ sudo apt-get install lcov cmake-curses-gui build-essential wget git python3 python3-pip python3-venv libc6-i386 libsystemd-dev
 ```
 
+
 ### 克隆仓库
 
 ```sh
@@ -78,30 +79,80 @@ $ tos menuconfig
 ```
 配置当前工程，配置完成后保存退出，编译工程。
 
+## 烧录
+### GUI 工具烧录
+tyutool gui 烧录工具已支持 T2/T3/T5/BK7231N/LN882H 等多种芯片串口烧录，支持 windows/Linux/macOS 等操作系统，请根据运行操作系统选择对应的 GUI 烧录工具。
+- windows：[tyutool_win](https://images.tuyacn.com/smart/embed/package/vscode/data/ide_serial/win_tyutool_gui.tar.gz)
+- Linux：[tyutool_linux.tar](https://images.tuyacn.com/smart/embed/package/vscode/data/ide_serial/tyutool_gui.tar.gz)
+- macOS_x86：[tyutool_mac_x86](https://images.tuyacn.com/smart/embed/package/vscode/data/ide_serial/darwin_x86_tyutool_gui.tar.gz)
+- macOS_arm64：[tyutool_mac_arm64.zip](https://images.tuyacn.com/smart/embed/package/vscode/data/ide_serial/darwin_arm64_tyutool_gui.tar.gz)
 
-## 多平台配置
-tos 工具通过项目工程目录下的 `project_build.ini` 文件配置多平台编译，[多平台配置文件](examples/get-started/sample_project/project_build.ini) 格式如下：
-```ini
-[project:sample_project_t2]
-platform = t2
+## 命令行烧录
+可通过 tos flash 命令一键烧录
 
-[project:sample_project_t3]
-platform = t3
-
-[project:sample_project_ubuntu]
-platform = ubuntu
-
-[project:sample_project_t5]
-platform = t5
-
-[project:sample_project_esp32]
-platform = esp32
-chip = esp32c3                  # esp32/esp32c3 可选
+1. 在 Linux 环境下需要先使用如下命令设置串口权限，否则运行会报错。
+```shell
+$ sudo usermod -aG dialout $USER
 ```
 
-默认 project 只有 1 个，如需编译多个 project，需在 `project_build.ini` 文件中添加多个 project 配置。
+2. 在需要编译完成后的项目中运行 tos flash 命令一键烧录，tos flash 会根据当前运行的环境自动下载对应的 tyutool 工具，并自动烧录。
+```shell
+$ cd examples/get-started/sample_project
+$ tos flash
+tyutool params:
+[INFO]: tyut_logger init done.
+[INFO]: Run Tuya Uart Tool.
+[INFO]: Use default baudrate: [921600]
+[INFO]: Use default start address: [0x00]
+--------------------
+1. /dev/ttyS0
+2. /dev/ttyS1
+3. /dev/ttyS2
+4. /dev/ttyS3
+5. /dev/ttyS4
+6. /dev/ttyS5
+7. /dev/ttyS6
+8. /dev/ttyS7
+9. /dev/ttyS8
+10. /dev/ttyS9
+11. /dev/ttyS10
+12. /dev/ttyS11
+13. /dev/ttyS12
+14. /dev/ttyS13
+15. /dev/ttyS14
+16. /dev/ttyS15
+17. /dev/ttyS16
+18. /dev/ttyS17
+19. /dev/ttyS18
+20. /dev/ttyS19
+21. /dev/ttyS20
+22. /dev/ttyS21
+23. /dev/ttyS22
+24. /dev/ttyS23
+25. /dev/ttyS24
+26. /dev/ttyS25
+27. /dev/ttyS26
+28. /dev/ttyS27
+29. /dev/ttyS28
+30. /dev/ttyS29
+31. /dev/ttyS30
+32. /dev/ttyS31
+33. /dev/ttyUSB0
+^^^^^^^^^^^^^^^^^^^^
+Select serial port: 33                              ## 选择正确的串口
+[INFO]: Waiting Reset ...
+[INFO]: unprotect flash OK.
+[INFO]: sync baudrate 921600 success
+Erasing: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 4 bytes/s   0:00:04 / 0:00:00
+[INFO]: Erase flash success
+Writing: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 16 bytes/s   0:00:18 / 0:00:00
+[INFO]: Write flash success
+[INFO]: CRC check success
+[INFO]: Reboot done
+[INFO]: Flash write success.
+```
 
-当配置文件中存在多个 project 时，`tos build` 命令会依次编译多个 project。
+> 注：烧录过程中需要根据芯片实际情况进入 boot 后才可以进行串口烧录。
 
 ### 支持 platform 列表
 | 名称 | 支持状态 | 介绍 | 调试日志串口 |
@@ -158,6 +209,10 @@ $ tuyaopen
 
 每个示例工程下对应有 README.md 文件，详细介绍了示例工程的配置、编译、运行等操作。
 
+## 云连接应用
+
+tuyaopen 提供了丰富的云连接应用示例，相关应用位于 apps 目录下，可点击 [云连接应用](apps/tuya_cloud/README_zh.md)。
+
 ## platform 新增与适配
 
 tuyaopen 支持新增与适配新的 platform，具体操作请参考 [platform 新增与适配](./docs/zh/new_platform.md)。
@@ -165,6 +220,7 @@ tuyaopen 支持新增与适配新的 platform，具体操作请参考 [platform 
 ## FAQ
 1. tuyaopen 支持的 platform 通过子仓库动态下载，更新 tuyaopen 仓库不会主动更新子仓库，如遇到问题无法正常编译，请至 platform 文件夹下对应的目录下使用 `git pull` 命令更新，或删除 platform 文件夹下对应目录后再次下载。
 
+2. tuyaopen 连提供了丰富的云连接应用示例，如发现无法正常连接或无法正常激活设备，请参考 [云连接应用](apps/tuya_cloud/README_zh.md)。
 
 ## License
 本项目的分发遵循 Apache License 版本 2.0。有关更多信息，请参见 LICENSE 文件。

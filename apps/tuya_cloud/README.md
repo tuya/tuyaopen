@@ -1,15 +1,23 @@
 ## Tuya Cloud Applications Project
 
+English | [简体中文](README_zh.md)
+
 The Tuya Cloud Application is an application provided by the Tuya IoT platform, which allows developers to quickly implement features such as remote control and device management.
 
 `switch_demo` demonstrates a simple, cross-platform, cross-system switch example that supports multiple connections. Through the Tuya APP and Tuya Cloud Service, this switch can be remotely controlled.
 
 1. Create a product and obtain the product PID:
 
-Refer to the documentation [https://developer.tuya.com/cn/docs/iot-device-dev/application-creation?id=Kbxw7ket3aujc](https://developer.tuya.com/cn/docs/iot-device-dev/application-creation?id=Kbxw7ket3aujc) to create a product on [https://iot.tuya.com](https://iot.tuya.com) and obtain the PID of the created product. Replace the `TUYA_PRODUCT_KEY` macro in the [apps/tuya_cloud/switch_demo/src/tuya_config.h](./src/tuya_config.h) file with the PID.
+Refer to the documentation [https://developer.tuya.com/en/docs/iot-device-dev/application-creation?id=Kbxw7ket3aujc](https://developer.tuya.com/cn/docs/iot-device-dev/application-creation?id=Kbxw7ket3aujc) to create a product on [https://iot.tuya.com](https://iot.tuya.com) and obtain the PID of the created product. Replace the `TUYA_PRODUCT_KEY` macro in the [apps/tuya_cloud/switch_demo/src/tuya_config.h](./src/tuya_config.h) file with the PID.
 
-2. Confirm the Tuya Cloud authorization code:
-tuyaopen uses a dedicated authorization code for tuyaopen. Using other authorization codes will not allow normal connection to the Tuya Cloud.
+2. Confirm the TuyaOpen authorization code:
+
+The Tuyaopen Framework includes:
+- C Version of TuyaOpen: [https://github.com/tuya/tuyaopen](https://github.com/tuya/tuyaopen)
+- Arduino Version of TuyaOpen: [https://github.com/tuya/arduino-tuyaopen](https://github.com/tuya/arduino-tuyaopen)
+- Luanode Version of TuyaOpen: [https://github.com/tuya/luanode-tuyaopen](https://github.com/tuya/luanode-tuyaopen)
+
+All versions use TuyaOpen dedicated authorization codes. Using other authorization codes will not allow normal connection to the Tuya Cloud.
 
 ```shell
 [switch_demo.c:220] Replace the TUYA_DEVICE_UUID and TUYA_DEVICE_AUTHKEY contents, otherwise the demo cannot work
@@ -35,3 +43,9 @@ The dedicated authorization code for tuyaopen can be obtained through the follow
 ```
 
 > If the `tuya_iot_license_read()` interface returns OPRT_OK, it indicates that the current device has a tuyaopen authorization code pre-burned. Otherwise, it indicates that the current module is not pre-burned with a tuyaopen authorization code.
+
+## Free TuyaOpen Authorization Code Giveaway
+
+To allow developers to freely experience the Tuyaopen Framework, we are now offering a free TuyaOpen Framework authorization code to anyone who stars the Tuyaopen Framework repositories on GitHub, including [https://github.com/tuya/tuyaopen](https://github.com/tuya/tuyaopen), [https://github.com/tuya/arduino-tuyaopen](https://github.com/tuya/arduino-tuyaopen), and [https://github.com/tuya/luanode-tuyaopen](https://github.com/tuya/luanode-tuyaopen). Simply star these repositories, provide a screenshot along with your GitHub account, send an email to `chenyisong@tuya.com` to obtain a free TuyaOpen Framework dedicated authorization code.
+
+Limited to 500 units, first come, first served, while supplies last.

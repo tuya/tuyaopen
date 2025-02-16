@@ -87,7 +87,6 @@ endforeach(comp)
 # add arduino src
 if(TOS_FRAMEWORK STREQUAL "arduino")
     include(${TOP_SOURCE_DIR}/arduino-tuyaopen/CMakeLists.txt)
-    message(STATUS "[TOP] LD_FILE: ${LD_FILE}")
 endif()
 
 # message(STATUS "[TOP] COMPONENT_LIBS: ${COMPONENT_LIBS}")
@@ -166,7 +165,6 @@ add_custom_command(
     ${PLATFORM_PATH}
 
     COMMAND
-    export OPEN_LD_FILE="${LD_FILE}" &&
     ./build_example.sh "${EXAMPLE_NAME}" "${CONFIG_PROJECT_VERSION}" "${PLATFORM_NEED_HDIR}"
     "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" "${PLATFORM_NEED_LIBS}"
     "${EXECUTABLE_OUTPUT_PATH}" "build" "${PLATFORM_CHIP}"
@@ -183,7 +181,6 @@ add_custom_target(platform_clean
     COMMAND
 
     COMMAND
-    export OPEN_LD_FILE="${LD_FILE}" &&
     ./build_example.sh "${EXAMPLE_NAME}" "${CONFIG_PROJECT_VERSION}" "${PLATFORM_NEED_HDIR}"
     "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" "${PLATFORM_NEED_LIBS}"
     "${EXECUTABLE_OUTPUT_PATH}" "clean"
