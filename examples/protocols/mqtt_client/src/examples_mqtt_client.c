@@ -57,6 +57,8 @@ typedef struct {
 /***********************************************************
 ********************** variable define *********************
 ***********************************************************/
+static netconn_wifi_info_t wifi_info = {0};
+static netmgr_status_e netmgr_status = NETMGR_LINK_DOWN;
 
 /***********************************************************
 ********************** function define *********************
@@ -105,21 +107,10 @@ static void mqtt_client_puback_cb(void *client, uint16_t msgid, void *userdata)
     // mqtt_client_disconnect(client);
 }
 
-/**
- * @brief  __link_status_cb
- *
- * @param[in] param:Task parameters
- * @return none
- */
-OPERATE_RET __link_status_cb(void *data)
+static void mqtt_client_example(void)
 {
-    int rt = OPRT_OK;
-    static netmgr_status_e status = NETMGR_LINK_DOWN;
-    if (status == (netmgr_status_e)data && NETMGR_LINK_UP == (netmgr_status_e)data)
-        return OPRT_OK;
-
-    status = (netmgr_status_e)data;
     PR_DEBUG("start mqtt client to broker.emqx.io");
+
     /* MQTT Client init */
     mqtt_client_context_t mqtt_client = {0};
     mqtt_client_status_t mqtt_status;
@@ -151,9 +142,23 @@ OPERATE_RET __link_status_cb(void *data)
     }
 
     mqtt_client_yield(&mqtt_client);
+}
 
-err_exit:
-    return rt;
+/**
+ * @brief  __link_status_cb
+ *
+ * @param[in] param:Task parameters
+ * @return none
+ */
+OPERATE_RET __link_status_cb(void *data)
+{
+    PR_DEBUG("link status changed: %d", (netmgr_status_e)data);
+    if (netmgr_status == (netmgr_status_e)data && NETMGR_LINK_UP == (netmgr_status_e)data)
+        return OPRT_OK;
+
+    netmgr_status = (netmgr_status_e)data;
+
+    return OPRT_OK;
 }
 
 /**
@@ -192,11 +197,19 @@ void user_main()
 
 #if defined(ENABLE_WIFI) && (ENABLE_WIFI == 1)
     // connect wifi
-    netconn_wifi_info_t wifi_info = {0};
     strcpy(wifi_info.ssid, DEFAULT_WIFI_SSID);
     strcpy(wifi_info.pswd, DEFAULT_WIFI_PSWD);
     netmgr_conn_set(NETCONN_WIFI, NETCONN_CMD_SSID_PSWD, &wifi_info);
 #endif
+
+    while (1) {
+        if (netmgr_status == NETMGR_LINK_UP) {
+            mqtt_client_example();
+            break;
+        } else {
+            tal_system_sleep(50);
+        }
+    }
 
     return;
 }

@@ -1026,6 +1026,14 @@ int tuya_ble_init(tuya_ble_cfg_t *cfg)
 {
     int rt = OPRT_OK;
 
+    if (cfg == NULL) {
+        return OPRT_INVALID_PARM;
+    };
+
+    if (cfg->client == NULL) {
+        return OPRT_INVALID_PARM;
+    }
+
     if (s_ble_mgr) {
         return OPRT_OK;
     }

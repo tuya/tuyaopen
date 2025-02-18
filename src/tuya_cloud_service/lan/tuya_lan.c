@@ -1237,6 +1237,10 @@ static int lan_tcp_create_serv_socket(lan_mgr_t *lan)
  */
 int tuya_lan_init(tuya_iot_client_t *iot_client)
 {
+    if (iot_client == NULL) {
+        return OPRT_INVALID_PARM;
+    }
+
     if (s_lan_mgr) {
         return OPRT_OK;
     }
