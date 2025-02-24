@@ -1,4 +1,7 @@
-# tuyaopen
+<p align="center">
+<img src="docs/images/TuyaOpen.png" width="60%" >
+</p>
+
 English | [简体中文](README_zh.md)
 
 ## Overview
@@ -15,8 +18,10 @@ At the same time, the tuyaopen will continuously expand, providing more cloud pl
 Ubuntu and Debian
 
 ```sh
-$ sudo apt-get install lcov cmake-curses-gui build-essential wget git python3 python3-pip python3-venv libc6-i386 libsystemd-dev
+$ sudo apt-get install lcov cmake-curses-gui build-essential ninja-build wget git python3 python3-pip python3-venv libc6-i386 libsystemd-dev
 ```
+
+> Note: After version v1.1.0, we adopted ninja as the build tool to speed up compilation. If you encounter compilation errors, please install ninja.
 
 ### Clone the repository
 

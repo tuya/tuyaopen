@@ -37,9 +37,19 @@ if(NOT EXISTS "${DOT_CONFIG_DIR}/${DOT_CONFIG}")  # copy pre-config to dot-confi
     execute_process(
         COMMAND
         ${CMAKE_COMMAND} -E make_directory ${DOT_CONFIG_DIR}
-
+        )
+    execute_process(
         COMMAND
         ${CMAKE_COMMAND} -E copy ${PLATFORM_PATH}/${DEFAULT_CONFIG_NAME} ${DOT_CONFIG_DIR}/${DOT_CONFIG}
+        )
+    execute_process(
+        COMMAND
+        bash "${KCONFIG_TOOLS}/append_app_default_config.sh" "${APP_DEFAULT_CONFIG}" "${DOT_CONFIG_DIR}/${DOT_CONFIG}"
+        )
+    execute_process(
+        COMMAND
+        python3 "${KCONFIG_TOOLS}/set_catalog_config.py" "-b" "${PLATFORM_PATH}"
+        "-s" "${TOP_SOURCE_DIR}/src" "-a" "${TOS_PROJECT_ROOT}" "-o" "${KCONFIG_CATALOG}"
         )
 endif()
 

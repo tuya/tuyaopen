@@ -28,7 +28,7 @@ if(${TOP_SOURCE_DIR} STREQUAL ${TOP_BINARY_DIR})
     ")
 endif()
 
-MESSAGE(STSTUS "###################################")
+MESSAGE(STATUS "###################################")
 IF (WIN32)
 	MESSAGE(STATUS "Now is windows")
 ELSEIF (APPLE)
@@ -48,7 +48,6 @@ if(DEFINED TOS_PROJECT_PLATFORM)
     set(PLATFORM_CHIP ${TOS_PROJECT_CHIP})
     set(PLATFORM_PATH "${TOP_SOURCE_DIR}/platform/${TOS_PROJECT_PLATFORM}")
 endif()
-set(KCONFIG_CATALOG "${PLATFORM_PATH}/CatalogKconfig")
 set(DEFAULT_CONFIG_NAME "default.config")
 set(PRE_CONFIG_DIR "${TOS_PROJECT_ROOT}/pre_config")
 
@@ -61,6 +60,8 @@ set(HEADER_DIR "${TOP_BINARY_DIR}/include")
 set(PLATFORM_NEED_HDIR "${TOP_BINARY_DIR}/include")
 set(HEADER_FILE "tuya_kconfig.h")
 set(HEADER_IN_PATH "${TOP_SOURCE_DIR}/tools/kconfiglib/config.h.in")
+set(KCONFIG_CATALOG "${DOT_CONFIG_DIR}/CatalogKconfig")
+set(APP_DEFAULT_CONFIG "${TOS_PROJECT_ROOT}/app_default.config")
 add_subdirectory("${TOP_SOURCE_DIR}/tools/kconfiglib")
 
 
@@ -127,35 +128,14 @@ target_include_directories(${EXAMPLE_LIB}
     ${HEADER_DIR}
     )
 target_link_libraries(${EXAMPLE_LIB} ${COMPONENTS_ALL_LIB})
+
 add_custom_target(example
-    WORKING_DIRECTORY
-    ${TOP_SOURCE_DIR}
-
-    COMMAND
-    ./tools/build_example.sh "${TOP_BINARY_DIR}" "${DEL_DEPEND}"
-    )
-
-add_custom_target(example_all
     DEPENDS
-    show_menuconfig
-    ${EXAMPLE_LIB}
     build_example_exe
+    ${EXAMPLE_LIB}
 
     COMMENT
     "[TOP] example=[${EXAMPLE_NAME}]"
-    )
-add_custom_command(
-    OUTPUT
-    show_menuconfig
-
-    COMMAND
-    ${CMAKE_COMMAND} -E echo "        ${Cyan}[tos menuconfig]${ColourReset}"
-
-    COMMAND
-    ${CMAKE_COMMAND} -E echo ""
-
-    COMMENT
-    "[EXAMPLE] If you want to change the configuration or change example version:"
     )
 add_custom_command(
     OUTPUT
@@ -167,7 +147,7 @@ add_custom_command(
     COMMAND
     ./build_example.sh "${EXAMPLE_NAME}" "${CONFIG_PROJECT_VERSION}" "${PLATFORM_NEED_HDIR}"
     "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" "${PLATFORM_NEED_LIBS}"
-    "${EXECUTABLE_OUTPUT_PATH}" "build" "${PLATFORM_CHIP}"
+    "${EXECUTABLE_OUTPUT_PATH}" "build" "${PLATFORM_CHIP}" | tee /dev/tty
 
     COMMENT
     "[EXAMPLE] Generate execute file [${EXAMPLE_NAME}]"
@@ -177,8 +157,6 @@ add_custom_command(
 add_custom_target(platform_clean
     WORKING_DIRECTORY
     ${PLATFORM_PATH}
-
-    COMMAND
 
     COMMAND
     ./build_example.sh "${EXAMPLE_NAME}" "${CONFIG_PROJECT_VERSION}" "${PLATFORM_NEED_HDIR}"

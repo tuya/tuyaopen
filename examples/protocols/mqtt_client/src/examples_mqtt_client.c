@@ -57,7 +57,6 @@ typedef struct {
 /***********************************************************
 ********************** variable define *********************
 ***********************************************************/
-static netconn_wifi_info_t wifi_info = {0};
 static netmgr_status_e netmgr_status = NETMGR_LINK_DOWN;
 
 /***********************************************************
@@ -196,6 +195,7 @@ void user_main()
     netmgr_init(type);
 
 #if defined(ENABLE_WIFI) && (ENABLE_WIFI == 1)
+    netconn_wifi_info_t wifi_info = {0};
     // connect wifi
     strcpy(wifi_info.ssid, DEFAULT_WIFI_SSID);
     strcpy(wifi_info.pswd, DEFAULT_WIFI_PSWD);

@@ -1,4 +1,7 @@
-# tuyaopen
+<p align="center">
+<img src="docs/images/TuyaOpen.png" width="60%" >
+</p>
+
 [English](https://github.com/tuya/tuyaopen/blob/master/README.md) | 简体中文
 
 ## 简介
@@ -14,9 +17,10 @@ tuyaopen 是一款跨芯片平台、操作系统的 IoT 开发框架。它基于
 Ubuntu and Debian
 
 ```sh
-$ sudo apt-get install lcov cmake-curses-gui build-essential wget git python3 python3-pip python3-venv libc6-i386 libsystemd-dev
+$ sudo apt-get install lcov cmake-curses-gui build-essential ninja-build wget git python3 python3-pip python3-venv libc6-i386 libsystemd-dev
 ```
 
+> 注：v1.1.0 版本之后，我们采用了 ninja 作为构建工具来加快编译速度，如遇到编译错误请安装 ninja。
 
 ### 克隆仓库
 

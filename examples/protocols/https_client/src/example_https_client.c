@@ -65,8 +65,8 @@
 OPERATE_RET __link_status_cb(void *data)
 {
     int rt = OPRT_OK;
-    const uint8_t *cacert;
-    size_t cacert_len;
+    uint16_t cacert_len = 0;
+    uint8_t *cacert = NULL;
     static netmgr_status_e status = NETMGR_LINK_DOWN;
     if (status == (netmgr_status_e)data && NETMGR_LINK_UP == (netmgr_status_e)data)
         return OPRT_OK;
@@ -74,14 +74,14 @@ OPERATE_RET __link_status_cb(void *data)
     /* HTTP Response */
     http_client_response_t http_response = {0};
 
+    /* HTTPS cert */
+    TUYA_CALL_ERR_RETURN(tuya_iotdns_query_domain_certs(URL, &cacert, &cacert_len));
+
     /* HTTP headers */
     http_client_header_t headers[] = {{.key = "Content-Type", .value = "application/json"}};
 
-    /* HTTPS cert */
-    TUYA_CALL_ERR_GOTO(tuya_iotdns_query_domain_certs(URL, &cacert, &cacert_len), err_exit);
-
     /* HTTP Request send */
-    PR_DEBUG("https request send!");
+    PR_DEBUG("http request send!");
     http_client_status_t http_status = http_client_request(
         &(const http_client_request_t){.cacert = cacert,
                                        .cacert_len = cacert_len,
@@ -102,7 +102,7 @@ OPERATE_RET __link_status_cb(void *data)
         goto err_exit;
     }
 
-    PR_DEBUG_RAW("https_get_example body: \n%s\n", (char *)http_response.body);
+    PR_DEBUG_RAW("http_get_example body: \n%s\n", (char *)http_response.body);
 err_exit:
     http_client_free(&http_response);
 
@@ -126,6 +126,8 @@ void user_main()
     });
     tal_sw_timer_init();
     tal_workq_init();
+    tuya_tls_init();
+    tuya_register_center_init();
     tal_event_subscribe(EVENT_LINK_STATUS_CHG, "https_client", __link_status_cb, SUBSCRIBE_TYPE_NORMAL);
 
     // 初始化LWIP

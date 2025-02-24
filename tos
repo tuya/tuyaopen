@@ -10,6 +10,15 @@ PROJECT_INI=$PROJECT_ROOT/project_build.ini
 KCONFIG_TOOLS=$OPEN_SDK_ROOT/tools/kconfiglib
 
 
+if [ x"$TOS_DEBUG" = x"1" ]; then
+    CMAKE_VERBOSE="-DCMAKE_VERBOSE_MAKEFILE=ON"
+    VERBOSE="--verbose"
+else
+    CMAKE_VERBOSE=""
+    VERBOSE=""
+fi
+
+
 # ==============================================================================
 # executing define
 # ------------------------------------------------------------------------------
@@ -17,7 +26,7 @@ function check_ini()
 {
     if [ ! -f $PROJECT_INI ]; then
         show "${fore[yellow]}" "Not found [$PROJECT_INI]."
-        show "${fore[green]}" "You could run [$OPEN_BUILD new your_project_name]."
+        show "${fore[green]}" "You could run [$OPEN_BUILD new]."
         exit 0
     fi
 }
@@ -74,22 +83,41 @@ function check_arduino()
 
 function version_exec()
 {
-    show "" "1.1.0"
+    show "" "1.2.0"
+}
+
+function check_base_tool()
+{
+    exit_flag=0
+    check_command_version "bash" "4.0.0" "bash --version"
+    if [ x"$?" != x"0" ]; then exit_flag=1; fi
+    check_command_version "grep" "3.0.0" "grep --version"
+    if [ x"$?" != x"0" ]; then exit_flag=1; fi
+    check_command_version "sed" "4.0.0" "sed --version"
+    if [ x"$?" != x"0" ]; then exit_flag=1; fi
+    check_command_version "python3" "3.6.0" "python3 --version"
+    if [ x"$?" != x"0" ]; then exit_flag=1; fi
+    check_command_version "git" "2.0.0" "git --version"
+    if [ x"$?" != x"0" ]; then exit_flag=1; fi
+    check_command_version "ninja" "1.6.0" "ninja --version"
+    if [ x"$?" != x"0" ]; then exit_flag=1; fi
+    check_command_version "cmake" "3.16.0" "cmake --version"
+    if [ x"$?" != x"0" ]; then exit_flag=1; fi
+    # check_command_version "ccmake" "3.16.0" "ccmake --version"  # sudo apt-get install cmake-curses-gui
+    # check_command_version "lcov" "1.14" "lcov --version"
+
+    if [ x"$exit_flag" = x"1" ]; then
+        show "${fore[red]}" "Error: Check the required tools and versions."
+        exit 1
+    fi
+
 }
 
 function check_exec()
 {
     show "" "Check command and version ..."
-    check_command_version "bash" "4.0.0" "bash --version"
-    check_command_version "grep" "3.0.0" "grep --version"
-    check_command_version "sed" "4.0.0" "sed --version"
-    check_command_version "python3" "3.6.0" "python3 --version"
-    check_command_version "git" "2.0.0" "git --version"
-    check_command_version "cmake" "3.16.0" "cmake --version"
-    # check_command_version "ccmake" "3.16.0" "ccmake --version"  # sudo apt-get install cmake-curses-gui
-    # check_command_version "lcov" "1.14" "lcov --version"
-    # check_command_version "ninja" "1.6.0" "ninja --version"
 
+    check_base_tool
     check_submodules
 
     which $OPEN_BUILD > /dev/null
@@ -213,6 +241,7 @@ chip: $PLATFORM_CHIP" # end PLATFORM_STR
 function build_exec()
 {
     check_ini
+    check_base_tool
     check_submodules
     PROJECT_NAMES=$1
     if [ -z "$PROJECT_NAMES" ]; then
@@ -257,8 +286,8 @@ function build_exec()
         if [ -f "$PLATFORM_PATH/build_setup.sh" ]; then
             $PLATFORM_PATH/build_setup.sh "${PROJ}" "${PROJECT_PLATFORM}" "${PROJECT_CHIP}" "${PROJECT_FRAMEWORK}"
         fi
-        cmake $OPEN_SDK_ROOT -DTOS_PROJECT_NAME=$PROJ -DTOS_PROJECT_ROOT=$PROJECT_ROOT -DTOS_PROJECT_PLATFORM=$PROJECT_PLATFORM -DTOS_FRAMEWORK=$PROJECT_FRAMEWORK -DTOS_PROJECT_CHIP=$PROJECT_CHIP
-        make example
+        cmake -G Ninja $CMAKE_VERBOSE $OPEN_SDK_ROOT -DTOS_PROJECT_NAME=$PROJ -DTOS_PROJECT_ROOT=$PROJECT_ROOT -DTOS_PROJECT_PLATFORM=$PROJECT_PLATFORM -DTOS_FRAMEWORK=$PROJECT_FRAMEWORK -DTOS_PROJECT_CHIP=$PROJECT_CHIP
+        ninja example $VERBOSE
         if [ ! "0" = "$?" ]; then
             RET=1
         fi
@@ -285,9 +314,15 @@ function clean_exec()
         fi
 
         cd $PROJECT_ROOT/.build/$PROJ
-        make clean_all
+        ninja clean_all
         cd - > /dev/null
     done
+}
+
+function fullclean_exec()
+{
+    clean_exec
+    rm -rf $PROJECT_ROOT/.build
 }
 
 function menuconfig_exec()
@@ -329,11 +364,15 @@ function menuconfig_exec()
     HEADER_DIR="$PROJECT_ROOT/.build/$PROJ/include"
     HEADER_FILE="tuya_kconfig.h"
     HEADER_IN_PATH="${KCONFIG_TOOLS}/config.h.in"
+    APP_DEFAULT_CONFIG="$PROJECT_ROOT/app_default.config"
 
     mkdir -p ${DOT_CONFIG_DIR}
     cd ${DOT_CONFIG_DIR}
     if [ ! -f $DOT_CONFIG ]; then
         cp $PLATFORM_PATH/default.config $DOT_CONFIG
+        if [ -f $APP_DEFAULT_CONFIG ]; then
+            cat $APP_DEFAULT_CONFIG >> $DOT_CONFIG
+        fi
     fi
     python3 $KCONFIG_TOOLS/set_catalog_config.py -b $PLATFORM_PATH -s $OPEN_SDK_ROOT/src -a $PROJECT_ROOT -o $KCONFIG_CATALOG
     bash ${KCONFIG_TOOLS}/run_menuconfig.sh "${KCONFIG_CATALOG}" "$DOT_CONFIG"
@@ -458,6 +497,7 @@ Commands:
                  [name] (default build all project by project_build.ini)
     clean      - Clean specific project or all projects
                  [name] (default clean all project by project_build.ini)
+    fullclean  - Deep clean all projects and delete build path
     menuconfig - Configuration project features
     build_all  - Build all projects in the directory
                  [*path]
@@ -485,6 +525,9 @@ case $1 in
         ;;
     clean)
         clean_exec $2
+        ;;
+    fullclean)
+        fullclean_exec
         ;;
     menuconfig)
         menuconfig_exec $2
