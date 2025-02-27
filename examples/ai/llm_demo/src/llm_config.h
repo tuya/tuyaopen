@@ -47,7 +47,7 @@
  * 4，使用你的API-key替换LLM_KIMI_TOKEN的内容
  *
  */
-#define LLM_KIMI_TOKEN       "Y2xz***************************************************************UQ2Q="
+#define LLM_KIMI_TOKEN       "sk-p3xulVNnZ3PZw2TjMO5DPlggsOYQyw6Q021bK3BLzpWuyzxr"//"Y2xz***************************************************************UQ2Q="
 #define LLM_HTTP_URL_KIMI    "api.moonshot.cn"
 #define LLM_HTTP_PATH_KIMI   "/v1/chat/completions"
 #define LLM_HTTP_HEADER_KIMI "moonshot-v1-8k"
@@ -63,8 +63,8 @@
  * 6，使用设备唯一ID作为CUID
  *
  */
-#define ASR_BAIDU_CLIENTID       "YA7******************Siv"
-#define ASR_BAIDU_CLIENT_SECURET "uIi**************************HBE"
+#define ASR_BAIDU_CLIENTID       "SGZCe23peJrAFHFK5AcULBBD"//"YA7******************Siv"
+#define ASR_BAIDU_CLIENT_SECURET "5gEXVENSVmDAZL4CFW1lZ3gIGqMzEMye"//"uIi**************************HBE"
 
 /**
  * @brief baidu asr

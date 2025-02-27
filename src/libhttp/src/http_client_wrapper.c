@@ -5,6 +5,7 @@
 #include "tuya_tls.h"
 #include "tal_log.h"
 
+int i=0;
 #define log_debug PR_DEBUG
 #define log_error PR_ERR
 
@@ -70,6 +71,23 @@ static http_client_status_t core_http_request_send(const TransportInterface_t *p
               "Response Body:\r\n%.*s\r\n",
               (int32_t)response->headersLen, response->pHeaders, response->statusCode, (int32_t)response->bodyLen,
               response->pBody);
+
+
+    // FILE *fp = fopen("/home/ubuntu/Desktop/tuyaopen/examples/ai/llm_demo/audio_file.mp3", "wb");
+    // if (fp) {
+    //     i++;if (i==3)
+    //     {
+    //     fwrite(response->pBody, 1, (int32_t)response->bodyLen, fp);
+    //     fclose(fp);i=0;
+    //     PR_DEBUG("Audio file saved successfully.");
+    //     }else{
+    //         fclose(fp);
+    //     }  
+    // } else {
+    //     PR_ERR("Failed to open file for writing.");
+    //     // rt = OPRT_FILE_OPEN_FAILED;
+    //     // goto err_exit;
+    // }
 
     return HTTP_CLIENT_SUCCESS;
 }

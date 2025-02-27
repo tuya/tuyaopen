@@ -24,10 +24,10 @@
  * and license, otherwise the demo cannot work.
  *
  */
-// clang-format off
-#define TUYA_PRODUCT_KEY      "qhivvyqawogv04e4"                        // Please change your product key
-#define TUYA_OPENSDK_UUID      "uuidxxxxxxxxxxxxxxxx"                    // Please change the correct uuid
-#define TUYA_OPENSDK_AUTHKEY   "keyxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"        // Please change the correct authkey
+// clang-format off             //"9c2zwaqp6d1xn7ex"    renti vyddpp6e8l1oxrxd    e switch 
+#define TUYA_PRODUCT_KEY       "vyddpp6e8l1oxrxd"//"ei93l0ryaeqzghpm"//"vyddpp6e8l1oxrxd"//"qhivvyqawogv04e4"                        // Please change your product key
+#define TUYA_OPENSDK_UUID      "uuidd76696b7a0cf4091"//"uuidxxxxxxxxxxxxxxxx"                    // Please change the correct uuid
+#define TUYA_OPENSDK_AUTHKEY   "r526VjFxauSTA2xNrBjXviEw0d422WBl"//"keyxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"        // Please change the correct authkey
 
 /**
  * @brief PINCODE for AP provisioning

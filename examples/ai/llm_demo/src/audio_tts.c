@@ -28,6 +28,11 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+#include "tkl_pwm.h"////////
+#include "tts_data.h"////////
+
+extern unsigned char data0[];
+
 /**
  * @brief get token
  *
@@ -179,8 +184,117 @@ int tts_request_baidu(TTS_format_e format, char *text, int voice, char *lang, in
         goto err_exit;
     }
 
+
+    TUYA_PWM_BASE_CFG_T pwm_cfg;
+    pwm_cfg.polarity = TUYA_PWM_POSITIVE; 
+    pwm_cfg.count_mode = TUYA_PWM_CNT_UP; 
+    pwm_cfg.duty = 130;// 0-270
+    pwm_cfg.frequency = 16000;
+    tkl_pwm_init(TUYA_PWM_NUM_0, &pwm_cfg);
+    tkl_pwm_start(TUYA_PWM_NUM_0);
+
+    // for (int i = 0; i < http_response.body_length; i++) {
+    //     pwm_cfg.duty= data0[i];tkl_pwm_init(TUYA_PWM_NUM_0, &pwm_cfg);
+    // }
+
+    ////add    
+   // 保存语音文件
+    FILE *fp = fopen("/home/ubuntu/Desktop/tuyaopen/examples/ai/llm_demo/file_audio.pcm", "wb");
+    if (fp) {
+        // if (http_response.body == NULL || http_response.body_length == 0) {
+        //     PR_DEBUG("数据为空或无效");
+        //     return;
+        // }else{fwrite(http_response.body, 1, http_response.body_length, fp);
+
+        PR_DEBUG("二进制数据（十六进制）:");
+        //PR_DEBUG("%02x ", http_response.body[i]); // 输出形如 "1a ff 00 3b"
+        for (size_t i = 0; i < http_response.body_length; i++) {    
+            pwm_cfg.duty= http_response.body[i];tkl_pwm_init(TUYA_PWM_NUM_0, &pwm_cfg);       
+        }
+        fwrite(http_response.body, 1, http_response.body_length, fp);
+
+        PR_DEBUG("http_response.body_length:%zu",http_response.body_length);  
+        fclose(fp);PR_DEBUG("Audio file saved successfully.");        
+    } else PR_DEBUG("Failed to open file for writing.");
+        //PR_ERR("Failed to open file for writing.");
+        // rt = OPRT_FILE_OPEN_FAILED;
+        //goto err_exit;
+    
+
+/*
+    //pwm
+    TUYA_PWM_BASE_CFG_T pwm_cfg;
+    // 设置PWM极性，假设使用正极性
+    pwm_cfg.polarity = TUYA_PWM_POSITIVE; 
+    // 设置计数模式，假设使用向上计数模式
+    pwm_cfg.count_mode = TUYA_PWM_CNT_UP; 
+    // 设置占空比，假设为 ?0%
+    pwm_cfg.duty = 10; 
+    // 设置周期
+    pwm_cfg.cycle = 100; 
+    // 设置频率，假设为10000Hz
+    pwm_cfg.frequency = 10000; 
+    tkl_pwm_init(TUYA_PWM_NUM_0, &pwm_cfg);
+    OPERATE_RET E_RET = tkl_pwm_start(TUYA_PWM_NUM_0);
+
+    for (int i = 0; i < http_response.body_length; i++) {
+        // 将音频数据映射到PWM占空比
+        tkl_pwm_duty_set(TUYA_PWM_NUM_0, http_response.body[i]);
+        // 输出PWM信号
+        //analogWrite(pwmPin, pwm_duty);
+        // 延时，控制音频播放速度
+        delay(100); //delay(ms);
+    }
+
+    tkl_pwm_stop(TUYA_PWM_NUM_0);
+
+    if (E_RET != OPRT_OK) {
+        printf("PWM initialization failed! Error code: %d\n", E_RET);
+    } else {
+        printf("PWM initialization succeeded!\n");
+    }
+*/
+
     // response.body
-    PR_DEBUG("response: %s", http_response.body);
+    //PR_DEBUG("response: %x", http_response.body);
+    PR_DEBUG("response: %.*ss",(int32_t)http_response.body_length, http_response.body);
+    // 保存语音文件
+    // FILE *fp = fopen("/home/ubuntu/Desktop/tuyaopen/examples/ai/llm_demo/audio_file.bin", "wb");
+    // if (fp) {
+    //     fwrite(http_response.body, 1, http_response.body_length, fp);
+    //     fclose(fp);
+    //     PR_DEBUG("Audio file saved successfully.");
+    // } else {
+    //     PR_ERR("Failed to open file for writing.");
+    //     //rt = OPRT_FILE_OPEN_FAILED;
+    //     //goto err_exit;
+    // }
+/*
+FILE *fp = fopen("/home/ubuntu/Desktop/tuyaopen/examples/ai/llm_demo/audio_file.bin", "wb");
+    // if (fp) {
+    if (fp == NULL) {
+        PR_DEBUG("Failed to open file???");
+        //return 1;
+    }
+
+    // 检查 body 是否为空
+    if (http_response.body != NULL && http_response.body_length > 0) {
+        // 将 body 内容写入文件
+        size_t written = fwrite(http_response.body, 1, http_response.body_length, fp);
+        if (written != http_response.body_length) {
+            PR_DEBUG("Failed to write the entire response body to the file");
+        } else {
+            PR_DEBUG("Response body written to file successfully.\n");
+        }
+
+        // 关闭文件
+        fclose(fp);
+
+    } else {
+        PR_DEBUG("Response body is empty.\n");
+    }
+*/
+
 
 err_exit:
     http_client_free(&http_response);

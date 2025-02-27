@@ -53,6 +53,8 @@
 #include "lwip_init.h"
 #endif
 
+//#include "tkl_i2s.h"////
+
 extern void tuya_app_cli_init(void);
 #define MAX_SIZE_OF_DEBUG_BUF 4096
 static char s_output_buf[MAX_SIZE_OF_DEBUG_BUF] = {0};
@@ -65,6 +67,7 @@ static LLM_t *sg_llm = NULL;
 static LLM_config_t sg_config[] = {
     {LLM_ALIQWEN_TOKEN, LLM_HTTP_URL_ALIQWEN, LLM_HTTP_PATH_ALIQWEN, LLM_HTTP_HEADER_ALIQWEN},
     {LLM_KIMI_TOKEN, LLM_HTTP_URL_KIMI, LLM_HTTP_PATH_KIMI, LLM_HTTP_HEADER_KIMI},
+    //{LLM_KIMI_TOKEN, LLM_HTTP_URL_KIMI, LLM_HTTP_PATH_KIMI, LLM_HTTP_HEADER_KIMI}
 };
 
 /**
@@ -337,9 +340,10 @@ int LLM_get_model(LLM_type_e *type)
     int rt = OPRT_OK;
 
     if (NULL == sg_llm) {
-        TUYA_CALL_ERR_RETURN(LLM_set_model(MODEL_ALI_QWEN));
+        //TUYA_CALL_ERR_RETURN(LLM_set_model(MODEL_ALI_QWEN));
+        TUYA_CALL_ERR_RETURN(LLM_set_model(MODEL_MOONSHOT_AI));
     }
-
+    ////sg_llm->current = MODEL_MOONSHOT_AI;
     *type = sg_llm->current;
     return OPRT_OK;
 }
@@ -478,6 +482,7 @@ static void tuya_app_thread(void *arg)
 void tuya_app_main(void)
 {
     THREAD_CFG_T thrd_param = {4096, 4, "tuya_app_main"};
+    //THREAD_CFG_T thrd_param = {16384 , 4, "tuya_app_main"};
     tal_thread_create_and_start(&ty_app_thread, NULL, NULL, tuya_app_thread, NULL, &thrd_param);
 }
 #endif

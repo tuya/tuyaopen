@@ -169,7 +169,8 @@ void asr_cmd(int argc, char *argv[])
 void __tts(void *data)
 {
     char *context = (char *)data;
-    tts_request_baidu(TTS_FORMAT_MP3, context, 0, "zh", 5, 5, 5);
+    //tts_request_baidu(TTS_FORMAT_MP3, context, 0, "zh", 5, 5, 5);
+    tts_request_baidu(TTS_FORMAT_PCM16K, context, 0, "zh", 5, 5, 5);
     tal_free(context);
     return;
 }

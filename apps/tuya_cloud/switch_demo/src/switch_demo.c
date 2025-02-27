@@ -30,6 +30,12 @@
 #define PROJECT_VERSION "1.0.0"
 #endif
 
+#include "tkl_gpio.h"
+#include "tkl_pwm.h"
+#include "c_source.h"
+extern const unsigned char dataa[];
+#include "tkl_uart.h"
+
 /* for string to QRCode translate and print */
 extern void example_qrcode_string(const char *string, void (*fputs)(const char *str), int invert);
 
@@ -196,6 +202,67 @@ bool user_network_check(void)
     return status == NETMGR_LINK_DOWN ? false : true;
 }
 
+
+
+TUYA_UART_BASE_CFG_T *cfg;
+cfg.baudrate = 115200;
+cfg.databits = TUYA_UART_DATA_LEN_8BIT;
+cfg.stopbits = TUYA_UART_STOP_LEN_1BIT;
+cfg.parity = TUYA_UART_PARITY_TYPE_NONE;
+cfg.flowctrl = TUYA_UART_FLOWCTRL_NONE;
+tkl_uart_init(TUYA_UART_NUM_2, &cfg);
+
+char *buff="hello12312312312312";
+tkl_uart_write(TUYA_UART_NUM_2, buff, strlen(buff));
+
+//tkl_uart_read(TUYA_UART_NUM_2, void *buff, uint16_t len)
+
+
+
+//
+// typedef __UINT8_TYPE__ __uint8_t;
+// typedef __uint8_t uint8_t ;
+// // #define size_t long unsigned int
+// //typedef __SIZE_TYPE__ size_t;
+
+// typedef struct http_client_response {
+//     /**
+//      * @brief Buffer for both the raw HTTP header and body.
+//      *
+//      * This buffer is supplied by the application.
+//      */
+//     uint8_t *buffer;
+//     size_t buffer_length; /**< The length of the response buffer in bytes. */
+
+//     /**
+//      * @brief The starting location of the response headers in buffer.
+//      */
+//     const uint8_t *headers;
+//     size_t headers_length;
+
+//     /**
+//      * @brief The starting location of the response body in buffer.
+//      */
+//     const uint8_t *body;
+//     size_t body_length;
+
+//     /**
+//      * @brief The HTTP response Status-Code.
+//      */
+//     //uint16_t status_code;
+// } http_client_response_t;
+
+static void delay(void)
+{
+    //for (int i = 0 ; i < 1000 ; i++) {//end 62.5ms
+        for (int i = 0 ; i < 20000 ; i++) {//end ms
+            for (int i = 0 ; i < 1000 ; i++) {//end 38.46us
+                __asm__ __volatile__("nop");
+            }
+        }
+    //}
+}
+
 void user_main()
 {
     int ret = OPRT_OK;
@@ -254,9 +321,105 @@ void user_main()
     /* Start tuya iot task */
     tuya_iot_start(&client);
 
+    http_client_response_t http_response = {0};
+    //uint8_t body_content = 1;
+    uint32_t body_buf[5] = {90,180,250,180,190};//char body_buf[8] = {0,1,1};
+    http_response.body = (uint8_t *)body_buf;
+    http_response.body_length = sizeof(body_buf);//sizeof
+
+    //pwm
+    TUYA_PWM_BASE_CFG_T pwm_cfg;
+    // 设置PWM极性，假设使用正极性
+    pwm_cfg.polarity = TUYA_PWM_POSITIVE; 
+    // 设置计数模式，假设使用向上计数模式
+    pwm_cfg.count_mode = TUYA_PWM_CNT_UP; 
+    // 设置占空比，假设为 ?0%
+    pwm_cfg.duty = 130;//50; 0-270
+    // 设置周期
+    //pwm_cfg.cycle = 10000;//100; 
+    // 设置频率，假设为10000Hz
+    pwm_cfg.frequency = 16000;//1396;//65533;//10000; //must
+    tkl_pwm_init(TUYA_PWM_NUM_1, &pwm_cfg);
+    OPERATE_RET E_RET = tkl_pwm_start(TUYA_PWM_NUM_0);
+/*
+    // //for (int i = 0; i < http_response.body_length; i++) {
+     for (int i = 0; i < 57280; i++) {
+        // 将音频数据映射到PWM占空比
+        //tkl_pwm_duty_set(TUYA_PWM_NUM_0, http_response.body[i]);
+        //pwm_cfg.duty=http_response.body[i];
+        pwm_cfg.duty= data0[i];
+        // 输出PWM信号
+        //analogWrite(pwmPin, pwm_duty);
+        // 延时，控制音频播放速度
+        //delay(); //delay(ms);
+     }
+*/
+// for (int i = 0; i < 5; i++) {
+// tkl_pwm_start(TUYA_PWM_NUM_0);
+// pwm_cfg.duty= body_buf[i];
+// delay(); 
+// }
+    //tkl_pwm_stop(TUYA_PWM_NUM_0);
+
+//pwm_cfg.duty = 50;tkl_pwm_start(TUYA_PWM_NUM_0);delay(); delay(); 
+// pwm_cfg.duty = 250;tkl_pwm_start(TUYA_PWM_NUM_0);
+//delay(); delay(); 
+//pwm_cfg.duty = 50;delay(); delay(); 
+// tkl_pwm_duty_set(TUYA_PWM_NUM_0,50);
+// delay(); 
+// tkl_pwm_duty_set(TUYA_PWM_NUM_0,100);
+// delay(); 
+// tkl_pwm_duty_set(TUYA_PWM_NUM_0,150);
+// delay(); 
+// tkl_pwm_duty_set(TUYA_PWM_NUM_0,200);
+// delay(); 
+// tkl_pwm_duty_set(TUYA_PWM_NUM_0,250);
+// delay(); 
+// tkl_pwm_duty_set(TUYA_PWM_NUM_0,200);
+// delay(); 
+// tkl_pwm_duty_set(TUYA_PWM_NUM_0,150);
+// delay(); 
+// tkl_pwm_duty_set(TUYA_PWM_NUM_0,100);
+// delay(); 
+// tkl_pwm_duty_set(TUYA_PWM_NUM_0,50);
+// delay(); 
+
+    if (E_RET != OPRT_OK) {
+        printf("PWM initialization failed! Error code: %d\n", E_RET);
+    } else {
+        printf("PWM initialization succeeded!\n");
+    }
+
+
     for (;;) {
         /* Loop to receive packets, and handles client keepalive */
         tuya_iot_yield(&client);
+        // tkl_pwm_stop(TUYA_PWM_NUM_0);
+        // pwm_cfg.duty = 250;
+        // tkl_pwm_init(TUYA_PWM_NUM_0, &pwm_cfg);tkl_pwm_start(TUYA_PWM_NUM_0);
+
+        // tkl_pwm_duty_set(250);delay(); 
+        // tkl_pwm_duty_set(150);delay(); 
+        // tkl_pwm_duty_set(50);delay();
+        // tkl_pwm_duty_set(150);delay(); 
+        // tkl_pwm_duty_set(250);delay(); 
+
+        // pwm_cfg.duty = 250;tkl_pwm_init(TUYA_PWM_NUM_0, &pwm_cfg);delay(); 
+        // pwm_cfg.duty = 150;tkl_pwm_init(TUYA_PWM_NUM_0, &pwm_cfg);delay(); 
+        // pwm_cfg.duty = 50;tkl_pwm_init(TUYA_PWM_NUM_0, &pwm_cfg);delay(); 
+        // pwm_cfg.duty = 150;tkl_pwm_init(TUYA_PWM_NUM_0, &pwm_cfg);delay(); 
+        // pwm_cfg.duty = 250;tkl_pwm_init(TUYA_PWM_NUM_0, &pwm_cfg);delay(); 
+
+     for (int i = 0; i < 57280; i++) {
+        // 将音频数据映射到PWM占空比
+        //tkl_pwm_duty_set(TUYA_PWM_NUM_0, http_response.body[i]);
+        //pwm_cfg.duty=http_response.body[i];
+        pwm_cfg.duty= dataa[i];tkl_pwm_init(TUYA_PWM_NUM_0, &pwm_cfg);//delay(); 
+        // 延时，控制音频播放速度
+        //delay(); //delay(ms);
+     }
+
+
     }
 }
 
