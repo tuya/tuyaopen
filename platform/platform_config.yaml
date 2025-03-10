@@ -21,6 +21,7 @@ platforms:
   chip:
     - esp32
     - esp32c3
+    - esp32s3
 
 - name: ln882h
   repo: https://github.com/tuya/TuyaOpen-ln882h
